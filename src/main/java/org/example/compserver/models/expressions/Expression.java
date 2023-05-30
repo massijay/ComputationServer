@@ -18,7 +18,7 @@ public class Expression {
         root = parse();
     }
 
-    public ExpressionNode parse() {
+    private ExpressionNode parse() {
         Token token = TokenType.CONSTANT.next(string, cursor);
         if (token != null && token.start == cursor) {
             cursor = token.end;
@@ -58,7 +58,7 @@ public class Expression {
         return root.computeUsing(variableValues);
     }
 
-    public enum TokenType {
+    private enum TokenType {
         CONSTANT(Pattern.compile("[0-9]+(\\.[0-9]+)?")),
         VARIABLE(Pattern.compile("[a-z][a-z0-9]*")),
         OPERATOR(Pattern.compile("[+\\-*/^]")),
@@ -70,7 +70,7 @@ public class Expression {
             this.pattern = pattern;
         }
 
-        public Token next(String s, int i) {
+        private Token next(String s, int i) {
             Matcher matcher = pattern.matcher(s);
             if (!matcher.find(i)) {
                 return null;
