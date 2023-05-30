@@ -15,6 +15,7 @@ public class Main {
         varVal.put("x0", 1.0);
         varVal.put("x1", 20.0);
         double result = e.computeUsing(varVal);
+        System.out.println(e);
         System.out.println("Result " + result);
     }
 }

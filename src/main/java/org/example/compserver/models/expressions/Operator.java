@@ -5,6 +5,7 @@ import org.example.compserver.models.expressions.exceptions.VariableNotDefinedEx
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 
@@ -37,6 +38,32 @@ public class Operator implements ExpressionNode {
 
     public Type getType() {
         return type;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Operator operator = (Operator) o;
+        if (type != operator.type) return false;
+        if (!Objects.equals(leftChild, operator.leftChild)) return false;
+        return Objects.equals(rightChild, operator.rightChild);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(type, leftChild, rightChild);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        return sb.append("(")
+                .append(leftChild.toString())
+                .append(type.getSymbol())
+                .append(rightChild.toString())
+                .append(")")
+                .toString();
     }
 
     public enum Type {

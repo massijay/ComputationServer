@@ -4,6 +4,7 @@ import org.example.compserver.models.expressions.exceptions.OperatorNotSupported
 import org.example.compserver.models.expressions.exceptions.VariableNotDefinedException;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -76,6 +77,24 @@ public class Expression {
             }
             return new Token(matcher.start(), matcher.end());
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Expression that = (Expression) o;
+        return Objects.equals(root, that.root);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(root);
+    }
+
+    @Override
+    public String toString() {
+        return root.toString();
     }
 
     private record Token(int start, int end) {
