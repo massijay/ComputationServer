@@ -79,10 +79,7 @@ public class VariableValuesFunction implements Function<String, double[]> {
     }
 
     public List<Map<String, Double>> getValueTuplesGrid() {
-        int length = map.values().stream()
-                .mapToInt(values -> values.length)
-                .reduce(1, (a, b) -> a * b);
-        List<Map<String, Double>> list = new ArrayList<>(length);
+        List<Map<String, Double>> list = null;
         for (Map.Entry<String, double[]> variableValues : map.entrySet()) {
             list = getNewValueTuplesGridWith(list, variableValues);
         }
