@@ -90,17 +90,12 @@ public class VariableValuesFunction implements Function<String, double[]> {
     }
 
     private static List<Map<String, Double>> getNewValueTuplesGridWith(List<Map<String, Double>> oldGrid, Map.Entry<String, double[]> variableValues) {
-        List<Map<String, Double>> newList;
         if (oldGrid == null || oldGrid.size() == 0) {
-            newList = new ArrayList<>(variableValues.getValue().length);
-            for (double d : variableValues.getValue()) {
-                Map<String, Double> m = new HashMap<>();
-                m.put(variableValues.getKey(), d);
-                newList.add(m);
-            }
-            return newList;
+            Map<String, Double> emptyMap = new HashMap<>(0);
+            oldGrid = new ArrayList<>(1);
+            oldGrid.add(emptyMap);
         }
-        newList = new ArrayList<>(oldGrid.size() * variableValues.getValue().length);
+        List<Map<String, Double>> newList = new ArrayList<>(oldGrid.size() * variableValues.getValue().length);
         for (Map<String, Double> oldMap : oldGrid) {
             for (double d : variableValues.getValue()) {
                 Map<String, Double> m = new HashMap<>(oldMap.size() + 1);

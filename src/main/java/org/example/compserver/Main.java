@@ -20,11 +20,12 @@ public class Main {
         System.out.println(e);
         System.out.println("Result " + result);
 
-        String s1 = "x:1:1:4,y:5:1:7,z:8:1:9";
+        String s1 = "x:1:1:4,y:5:1:7,z:8:1:9,w:10:1:11";
         VariableValuesFunction vvf = new VariableValuesFunction(s1);
         System.out.println("x = " + Arrays.toString(vvf.getValuesOf("x")));
         System.out.println("y = " + Arrays.toString(vvf.getValuesOf("y")));
         System.out.println("z = " + Arrays.toString(vvf.getValuesOf("z")));
+        System.out.println("w = " + Arrays.toString(vvf.getValuesOf("w")));
 
 //        List<Map<String, Double>> valueTuplesList = vvf.getValueTuplesList();
 //        System.out.println(valueTuplesList);
