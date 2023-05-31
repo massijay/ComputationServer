@@ -1,16 +1,15 @@
 package org.example.compserver;
 
 import org.example.compserver.models.VariableValuesFunction;
-import org.example.compserver.models.exceptions.InvalidVariableValuesFunction;
 import org.example.compserver.models.expressions.Expression;
-import org.example.compserver.models.expressions.exceptions.VariableNotDefinedException;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Main {
-    public static void main(String[] args) throws VariableNotDefinedException, InvalidVariableValuesFunction {
+    public static void main(String[] args) throws Exception {
         System.out.println("Hello world!");
 
         Expression e = new Expression("((x0+(2.0^x1))/(21.1-x0))");
@@ -21,10 +20,16 @@ public class Main {
         System.out.println(e);
         System.out.println("Result " + result);
 
-        String s1 = "x0:-1:11:1,x1:-10:1:20.5";
+        String s1 = "x:1:1:4,y:5:1:7,z:8:1:9";
         VariableValuesFunction vvf = new VariableValuesFunction(s1);
-        System.out.println("x0 = " + Arrays.toString(vvf.getValuesOf("x0")));
-        System.out.println("x1 = " + Arrays.toString(vvf.getValuesOf("x1")));
-        System.out.println("x2 = " + Arrays.toString(vvf.getValuesOf("x2")));
+        System.out.println("x = " + Arrays.toString(vvf.getValuesOf("x")));
+        System.out.println("y = " + Arrays.toString(vvf.getValuesOf("y")));
+        System.out.println("z = " + Arrays.toString(vvf.getValuesOf("z")));
+
+//        List<Map<String, Double>> valueTuplesList = vvf.getValueTuplesList();
+//        System.out.println(valueTuplesList);
+        List<Map<String, Double>> valueTuplesGrid = vvf.getValueTuplesGrid();
+        System.out.println(valueTuplesGrid);
+        System.out.println(valueTuplesGrid.size());
     }
 }

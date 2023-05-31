@@ -1,13 +1,15 @@
 package org.example.compserver.models;
 
 import org.example.compserver.models.exceptions.InvalidVariableValuesFunction;
+import org.example.compserver.models.exceptions.ValueTuplesGenerationException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
 public class VariableValuesFunction implements Function<String, double[]> {
-
     private final Map<String, double[]> map;
 
     public VariableValuesFunction(String string) throws InvalidVariableValuesFunction {
@@ -53,6 +55,61 @@ public class VariableValuesFunction implements Function<String, double[]> {
             return map.get(variableName);
         }
         return new double[0];
+    }
+
+    public List<Map<String, Double>> getValueTuplesList() throws ValueTuplesGenerationException {
+        boolean tuplesWithSameLength = map.values().stream()
+                .mapToInt(values -> values.length)
+                .distinct()
+                .count() == 1;
+        if (!tuplesWithSameLength) {
+            throw new ValueTuplesGenerationException("Provided variables have different length value tuples");
+        }
+
+        int length = map.values().iterator().next().length;
+        List<Map<String, Double>> list = new ArrayList<>(length);
+        for (int i = 0; i < length; i++) {
+            Map<String, Double> m = new HashMap<>(map.keySet().size());
+            for (String varName : map.keySet()) {
+                m.put(varName, map.get(varName)[i]);
+            }
+            list.add(m);
+        }
+        return list;
+    }
+
+    public List<Map<String, Double>> getValueTuplesGrid() {
+        int length = map.values().stream()
+                .mapToInt(values -> values.length)
+                .reduce(1, (a, b) -> a * b);
+        List<Map<String, Double>> list = new ArrayList<>(length);
+        for (Map.Entry<String, double[]> variableValues : map.entrySet()) {
+            list = getNewValueTuplesGridWith(list, variableValues);
+        }
+        return list;
+    }
+
+    private static List<Map<String, Double>> getNewValueTuplesGridWith(List<Map<String, Double>> oldGrid, Map.Entry<String, double[]> variableValues) {
+        List<Map<String, Double>> newList;
+        if (oldGrid == null || oldGrid.size() == 0) {
+            newList = new ArrayList<>(variableValues.getValue().length);
+            for (double d : variableValues.getValue()) {
+                Map<String, Double> m = new HashMap<>();
+                m.put(variableValues.getKey(), d);
+                newList.add(m);
+            }
+            return newList;
+        }
+        newList = new ArrayList<>(oldGrid.size() * variableValues.getValue().length);
+        for (Map<String, Double> oldMap : oldGrid) {
+            for (double d : variableValues.getValue()) {
+                Map<String, Double> m = new HashMap<>(oldMap.size() + 1);
+                m.putAll(oldMap);
+                m.put(variableValues.getKey(), d);
+                newList.add(m);
+            }
+        }
+        return newList;
     }
 
     @Override
