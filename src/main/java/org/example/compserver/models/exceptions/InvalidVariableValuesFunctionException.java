@@ -1,14 +1,14 @@
 package org.example.compserver.models.exceptions;
 
-public class InvalidVariableValuesFunction extends Exception {
+public class InvalidVariableValuesFunctionException extends Exception {
     private final String variableValues;
 
-    public InvalidVariableValuesFunction(String variableValues, String message, Throwable cause) {
+    public InvalidVariableValuesFunctionException(String variableValues, String message, Throwable cause) {
         super(message, cause);
         this.variableValues = variableValues;
     }
 
-    public InvalidVariableValuesFunction(String variableValues, String message) {
+    public InvalidVariableValuesFunctionException(String variableValues, String message) {
         super(message);
         this.variableValues = variableValues;
     }
