@@ -55,6 +55,20 @@ public class VariableValuesFunction implements Function<String, double[]> {
         return new double[0];
     }
 
+    public int getValueTuplesCount(ValuesKind valuesKind) throws ValueTuplesGenerationException {
+        if (valuesKind == ValuesKind.LIST) {
+            if (hasValuesWithDifferentLength(variablesMap)) {
+                throw new ValueTuplesGenerationException("Provided variables have different length value tuples");
+            }
+            return variablesMap.entrySet().iterator().next().getValue().length;
+        }
+        // ValuesKind.GRID
+        return variablesMap.values().stream()
+                .map(arr -> arr.length)
+                .reduce(1, (a, b) -> a * b);
+    }
+
+
     public List<Map<String, Double>> getAllValueTuples(ValuesKind valuesKind) throws ValueTuplesGenerationException {
         return getValueTuplesOfVariables(valuesKind, null);
     }
@@ -78,11 +92,7 @@ public class VariableValuesFunction implements Function<String, double[]> {
     }
 
     private static List<Map<String, Double>> getValueTuplesList(Map<String, double[]> variablesMap) throws ValueTuplesGenerationException {
-        boolean tuplesWithSameLength = variablesMap.values().stream()
-                .mapToInt(values -> values.length)
-                .distinct()
-                .count() == 1;
-        if (!tuplesWithSameLength) {
+        if (hasValuesWithDifferentLength(variablesMap)) {
             throw new ValueTuplesGenerationException("Provided variables have different length value tuples");
         }
 
@@ -96,6 +106,13 @@ public class VariableValuesFunction implements Function<String, double[]> {
             list.add(m);
         }
         return list;
+    }
+
+    private static boolean hasValuesWithDifferentLength(Map<String, double[]> variablesMap) {
+        return variablesMap.values().stream()
+                .mapToInt(values -> values.length)
+                .distinct()
+                .count() != 1;
     }
 
     private static List<Map<String, Double>> getValueTuplesGrid(Map<String, double[]> variablesMap) {
