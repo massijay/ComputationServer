@@ -64,6 +64,9 @@ public class VariableValuesFunction implements Function<String, double[]> {
         if (variables == null) {
             map = this.variablesMap;
         } else {
+            if (!variablesMap.keySet().containsAll(variables)) {
+                throw new ValueTuplesGenerationException("Passed variables must be a subset (or the same set) of the variables mapped in this VariableValuesFunction");
+            }
             map = this.variablesMap.entrySet().stream()
                     .filter(kv -> variables.contains(kv.getKey()))
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
