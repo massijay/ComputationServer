@@ -70,15 +70,15 @@ public class Expression {
     }
 
     private enum TokenType {
-        CONSTANT(Pattern.compile("[0-9]+(\\.[0-9]+)?")),
-        VARIABLE(Pattern.compile("[a-z][a-z0-9]*")),
-        OPERATOR(Pattern.compile("[+\\-*/^]")),
-        OPEN_PARENTHESIS(Pattern.compile("\\(")),
-        CLOSED_PARENTHESIS(Pattern.compile("\\)"));
+        CONSTANT("[0-9]+(\\.[0-9]+)?"),
+        VARIABLE("[a-z][a-z0-9]*"),
+        OPERATOR("[+\\-*/^]"),
+        OPEN_PARENTHESIS("\\("),
+        CLOSED_PARENTHESIS("\\)");
         private final Pattern pattern;
 
-        TokenType(Pattern pattern) {//TODO
-            this.pattern = pattern;
+        TokenType(String regex) {
+            this.pattern = Pattern.compile(regex);
         }
 
         private Token next(String s, int i) {
