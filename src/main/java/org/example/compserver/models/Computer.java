@@ -38,14 +38,14 @@ public class Computer {
         }
 
         if (computationKind == ComputationRequest.ComputationKind.AVG) {
-            return results.stream().mapToDouble(d -> d)
+            return results.stream().mapToDouble(Double::doubleValue)
                     .average().orElseThrow();
         }
         if (computationKind == ComputationRequest.ComputationKind.MAX) {
-            return results.stream().mapToDouble(x -> x)
+            return results.stream().mapToDouble(Double::doubleValue)
                     .max().orElseThrow();
         }
-        return results.stream().mapToDouble(x -> x)
+        return results.stream().mapToDouble(Double::doubleValue)
                 .min().orElseThrow();
     }
 }
