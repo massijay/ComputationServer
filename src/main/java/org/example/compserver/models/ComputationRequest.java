@@ -2,12 +2,13 @@ package org.example.compserver.models;
 
 import org.example.compserver.models.exceptions.InvalidVariableValuesFunctionException;
 import org.example.compserver.models.exceptions.MalformedRequestException;
-import org.example.compserver.models.exceptions.ValueTuplesGenerationException;
 import org.example.compserver.models.expressions.Expression;
 import org.example.compserver.models.expressions.exceptions.InvalidExpressionException;
-import org.example.compserver.models.expressions.exceptions.VariableNotDefinedException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class ComputationRequest implements Request {
     private final ComputationKind computationKind;
@@ -70,42 +71,6 @@ public class ComputationRequest implements Request {
             }
         }
         return new ComputationRequest(computationKind, valuesKind, vvf, expressions);
-    }
-
-    public String compute() throws ValueTuplesGenerationException, VariableNotDefinedException {
-        if (computationKind == ComputationKind.COUNT) {
-            int count = variableValuesFunction.getValueTuplesCount(valuesKind);
-            return Integer.toString(count);
-        }
-
-        if (computationKind == ComputationKind.AVG) {
-            Expression e = expressions.get(0);
-            List<Map<String, Double>> valueTuples = variableValuesFunction.getValueTuplesOfVariables(valuesKind, e.getVariables());
-            List<Double> res = new ArrayList<>(valueTuples.size());//verificare
-            for (Map<String, Double> valueTuple : valueTuples) {
-                res.add(e.computeUsing(valueTuple));
-            }
-            double avg = res.stream()
-                    .mapToDouble(d -> d)
-                    .average().orElseThrow();
-            return Double.toString(avg);
-        }
-
-        List<Double> results = new ArrayList<>();
-        for (Expression e : expressions) {
-            List<Map<String, Double>> valueTuples = variableValuesFunction.getValueTuplesOfVariables(valuesKind, e.getVariables());
-            for (Map<String, Double> valueTuple : valueTuples) {
-                results.add(e.computeUsing(valueTuple));
-            }
-        }
-        if (computationKind == ComputationKind.MAX) {
-            double max = results.stream().mapToDouble(x -> x)
-                    .max().orElseThrow();
-            return Double.toString(max);
-        }
-        double min = results.stream().mapToDouble(x -> x)
-                .min().orElseThrow();
-        return Double.toString(min);
     }
 
     public ComputationKind getComputationKind() {
