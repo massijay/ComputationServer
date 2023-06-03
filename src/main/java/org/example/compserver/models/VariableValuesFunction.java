@@ -79,7 +79,9 @@ public class VariableValuesFunction implements Function<String, double[]> {
             map = this.variablesMap;
         } else {
             if (!variablesMap.keySet().containsAll(variables)) {
-                throw new ValueTuplesGenerationException("Passed variables must be a subset (or the same set) of the variables mapped in this VariableValuesFunction");
+                Set<String> undefinedVariables = new HashSet<>(variables);
+                undefinedVariables.removeAll(variablesMap.keySet());
+                throw new ValueTuplesGenerationException("Undefined variables: " + undefinedVariables);
             }
             map = this.variablesMap.entrySet().stream()
                     .filter(kv -> variables.contains(kv.getKey()))
