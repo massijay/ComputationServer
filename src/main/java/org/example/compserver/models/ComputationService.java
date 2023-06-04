@@ -1,6 +1,5 @@
 package org.example.compserver.models;
 
-
 import org.example.compserver.models.exceptions.ValueTuplesGenerationException;
 import org.example.compserver.models.expressions.Expression;
 import org.example.compserver.models.expressions.exceptions.VariableNotDefinedException;
@@ -9,12 +8,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
-public class Computer {
-    private Computer() {
+public class ComputationService {
+    private static final int CORES_COUNT = Runtime.getRuntime().availableProcessors();
+    private static final ExecutorService service = Executors.newFixedThreadPool(CORES_COUNT);
+
+    private ComputationService() {
     }
 
-    public static double compute(ComputationRequest request) throws ValueTuplesGenerationException, VariableNotDefinedException {
+    public static Future<Double> submit(ComputationRequest request) {
+        return service.submit(() -> compute(request));
+    }
+
+    private static double compute(ComputationRequest request) throws ValueTuplesGenerationException, VariableNotDefinedException {
         Objects.requireNonNull(request);
         ComputationRequest.ComputationKind computationKind = request.getComputationKind();
         VariableValuesFunction variableValuesFunction = request.getVariableValuesFunction();
