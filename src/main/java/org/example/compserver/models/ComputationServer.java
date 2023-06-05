@@ -49,8 +49,6 @@ public class ComputationServer {
                                 bw.write(process(command) + System.lineSeparator());
                                 bw.flush();
                             }
-
-
                         } catch (IOException e) {
                             logger.logError("Connection error\n\t" + e.getMessage());
                         }

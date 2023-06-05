@@ -83,6 +83,8 @@ public class VariableValuesFunction implements Function<String, double[]> {
         Map<String, double[]> map;
         if (variables == null) {
             map = this.variablesMap;
+        } else if (variables.isEmpty()) {
+            map = Map.of("x", new double[]{0d});
         } else {
             if (!this.variablesMap.keySet().containsAll(variables)) {
                 Set<String> undefinedVariables = new HashSet<>(variables);
@@ -92,10 +94,6 @@ public class VariableValuesFunction implements Function<String, double[]> {
             map = this.variablesMap.entrySet().stream()
                     .filter(kv -> variables.contains(kv.getKey()))
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-            if (map.isEmpty()) {
-                String first = this.variablesMap.keySet().iterator().next();
-                map.put(first, new double[]{this.variablesMap.get(first)[0]});
-            }
         }
         return switch (valuesKind) {
             case LIST -> getValueTuplesList(map);
