@@ -24,6 +24,7 @@ public class ComputationServer {
     }
 
     public void start() throws IOException {
+        logger.logInfo("Begin serving on port " + port);
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             //noinspection InfiniteLoopStatement
             while (true) {
