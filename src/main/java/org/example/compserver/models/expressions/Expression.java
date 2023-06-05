@@ -17,7 +17,17 @@ public class Expression {
     public Expression(String string) throws InvalidExpressionException {
         this.string = string;
         variables = new HashSet<>();
+        boolean unbalanced = string.chars()
+                .filter(c -> c == '(' || c == ')')
+                .map(c -> c == '(' ? 1 : -1)
+                .sum() != 0;
+        if (unbalanced) {
+            throw new InvalidExpressionException(string, "Unbalanced number of parentheses");
+        }
         root = parse();
+        if (cursor != string.length()) {
+            throw new InvalidExpressionException(string, cursor, "end of the string");
+        }
     }
 
     private ExpressionNode parse() throws InvalidExpressionException {

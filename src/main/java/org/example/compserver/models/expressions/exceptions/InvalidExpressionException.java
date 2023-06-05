@@ -5,6 +5,13 @@ public class InvalidExpressionException extends Exception {
     private final int errorPosition;
     private final String expectedToken;
 
+    public InvalidExpressionException(String expressionString, String message) {
+        super(message);
+        this.expressionString = expressionString;
+        this.errorPosition = 0;
+        this.expectedToken = "";
+    }
+
     public InvalidExpressionException(String expressionString, int errorPosition, String expectedToken) {
         super(buildErrorMessage(expressionString, errorPosition, expectedToken));
         this.expressionString = expressionString;
@@ -22,11 +29,9 @@ public class InvalidExpressionException extends Exception {
     private static String buildErrorMessage(String expressionString, int errorPosition, String expectedToken) {
         //noinspection StringBufferReplaceableByString
         StringBuilder sb = new StringBuilder();
-        sb.append("Unexpected token encountered parsing the expression string, got\n")
-                .append(expressionString)
-                .append(" ".repeat(Math.max(0, errorPosition)))
-                .append("^\n")
-                .append("Expected: ")
+        sb.append("Unexpected token encountered, got \"")
+                .append(expressionString.charAt(errorPosition))
+                .append("\", Expected: ")
                 .append(expectedToken);
         return sb.toString();
     }

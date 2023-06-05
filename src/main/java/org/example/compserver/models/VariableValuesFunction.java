@@ -5,10 +5,12 @@ import org.example.compserver.models.exceptions.ValueTuplesGenerationException;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class VariableValuesFunction implements Function<String, double[]> {
     private final Map<String, double[]> variablesMap;
+    private static final Pattern variablePattern = Pattern.compile("[a-z][a-z0-9]*");
 
     public VariableValuesFunction(String string) throws InvalidVariableValuesFunctionException {
         String[] variablesValues = string.split(",");
@@ -24,6 +26,10 @@ public class VariableValuesFunction implements Function<String, double[]> {
                         "4 colon-separated parameters expected, got " + splitted.length);
             }
             String name = splitted[0];
+            if (!variablePattern.matcher(name).matches()) {
+                throw new InvalidVariableValuesFunctionException(vv,
+                        "Invalid variable name \"" + name + "\"");
+            }
             double[] parsed = new double[3];
             for (int i = 1; i < splitted.length; i++) {
                 try {
@@ -33,7 +39,7 @@ public class VariableValuesFunction implements Function<String, double[]> {
                 }
             }
             if (parsed[1] <= 0) {
-                throw new InvalidVariableValuesFunctionException(vv, "Step cannot be <=0, got " + parsed[1]);
+                throw new InvalidVariableValuesFunctionException(vv, "Step cannot be <= 0, got " + parsed[1]);
             }
             if (parsed[0] > parsed[2]) {
                 throw new InvalidVariableValuesFunctionException(vv,
@@ -58,7 +64,7 @@ public class VariableValuesFunction implements Function<String, double[]> {
     public int getValueTuplesCount(ValuesKind valuesKind) throws ValueTuplesGenerationException {
         if (valuesKind == ValuesKind.LIST) {
             if (hasValuesWithDifferentLength(variablesMap)) {
-                throw new ValueTuplesGenerationException("Provided variables have different length value tuples");
+                throw new ValueTuplesGenerationException("Provided variables must have same-length value tuples if values kind is LIST");
             }
             return variablesMap.entrySet().iterator().next().getValue().length;
         }
@@ -78,14 +84,18 @@ public class VariableValuesFunction implements Function<String, double[]> {
         if (variables == null) {
             map = this.variablesMap;
         } else {
-            if (!variablesMap.keySet().containsAll(variables)) {
+            if (!this.variablesMap.keySet().containsAll(variables)) {
                 Set<String> undefinedVariables = new HashSet<>(variables);
                 undefinedVariables.removeAll(variablesMap.keySet());
-                throw new ValueTuplesGenerationException("Undefined variables: " + undefinedVariables);
+                throw new ValueTuplesGenerationException("Undefined variables: " + String.join(", ", undefinedVariables));
             }
             map = this.variablesMap.entrySet().stream()
                     .filter(kv -> variables.contains(kv.getKey()))
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            if (map.isEmpty()) {
+                String first = this.variablesMap.keySet().iterator().next();
+                map.put(first, new double[]{this.variablesMap.get(first)[0]});
+            }
         }
         return switch (valuesKind) {
             case LIST -> getValueTuplesList(map);
@@ -118,7 +128,7 @@ public class VariableValuesFunction implements Function<String, double[]> {
     }
 
     private static List<Map<String, Double>> getValueTuplesGrid(Map<String, double[]> variablesMap) {
-        List<Map<String, Double>> list = null;
+        List<Map<String, Double>> list = Collections.emptyList();
         for (Map.Entry<String, double[]> variableValues : variablesMap.entrySet()) {
             list = getNewValueTuplesGridWith(list, variableValues);
         }
@@ -141,6 +151,19 @@ public class VariableValuesFunction implements Function<String, double[]> {
             }
         }
         return newList;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        VariableValuesFunction that = (VariableValuesFunction) o;
+        return Objects.equals(variablesMap, that.variablesMap);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(variablesMap);
     }
 
     @Override

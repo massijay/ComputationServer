@@ -8,6 +8,16 @@ public interface Response {
     }
 
     static String buildError(String errorMessage) {
+        if (errorMessage.contains(";")) {
+            errorMessage = errorMessage.replace(";", " ");
+        }
+        if (errorMessage.contains("\n") || errorMessage.contains("\r")) {
+            errorMessage = errorMessage.replaceAll("[\\r\\n]+", " ");
+        }
         return "ERR;" + errorMessage;
+    }
+
+    static String buildError(String exceptionName, String errorMessage) {
+        return buildError("(" + exceptionName + ") " + errorMessage);
     }
 }

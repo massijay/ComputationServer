@@ -1,6 +1,7 @@
 package org.example.compserver.models;
 
 import org.example.compserver.models.exceptions.MalformedRequestException;
+import org.example.compserver.models.utils.Logger;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -11,12 +12,14 @@ import java.util.concurrent.Executors;
 
 public class ComputationServer {
     private final int port;
+    private final Logger logger;
     private final ExecutorService executorService;
     private final static int CONCURRENT_CLIENTS = 100;
     private static final String QUIT_COMMAND = "BYE";
 
-    public ComputationServer(int port) {
+    public ComputationServer(int port, Logger logger) {
         this.port = port;
+        this.logger = logger;
         this.executorService = Executors.newFixedThreadPool(CONCURRENT_CLIENTS);
     }
 
@@ -29,18 +32,18 @@ public class ComputationServer {
 
                     executorService.submit(() -> {
                         try (socket) {
-                            // Use a printwriter?
+                            logger.logInfo("Client connected");
                             BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
                             while (true) {
                                 String command = br.readLine();
                                 if (command == null) {
-                                    // Handle Client abruptly closed connection
+                                    logger.logInfo("Client abruptly closed connection");
                                     break;
                                 }
                                 if (command.equals(QUIT_COMMAND)) {
-                                    // Handle Client gracefully closed connection
+                                    logger.logInfo("Client closed connection");
                                     break;
                                 }
                                 bw.write(process(command) + System.lineSeparator());
@@ -49,12 +52,12 @@ public class ComputationServer {
 
 
                         } catch (IOException e) {
-                            // Catch IO errors
+                            logger.logError("Connection error\n\t" + e.getMessage());
                         }
                     });
 
                 } catch (IOException e) {
-                    // Catch client connection problems
+                    logger.logError("Error during client connection\n\t" + e.getMessage());
                 }
             }
         } finally {
@@ -82,16 +85,14 @@ public class ComputationServer {
                 ConcurrentResponseStats.addResponseTime(millis);
                 return Response.buildOk(millis, result);
             }
-        } catch (MalformedRequestException e) {
-            // Handle parsing exception
-        } catch (ExecutionException e) {
-            // Handle ValueTuplesGenerationException, VariableNotDefinedException
+        } catch (MalformedRequestException | ExecutionException e) {
+            if (e.getCause() != null) {
+                return Response.buildError(e.getCause().getClass().getSimpleName(), e.getCause().getMessage());
+            }
+            return Response.buildError(e.getClass().getSimpleName(), e.getMessage());
         } catch (InterruptedException e) {
-            // Handle task interrupted
+            logger.logError("Thread interrupted\n\t" + e.getMessage());
         }
-
-        //RITORNA ERRORE RICHIESTA SCONOSCIUTA
-
-        return "";
+        return Response.buildError("Malformed request");
     }
 }
